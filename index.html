@@ -2,27 +2,34 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>M3U8 Link Generator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Stream Link Generator & Player</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        /* Ensures true fullscreen capability for Safari mobile */
+        .fullscreen-player {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: black; z-index: 9999; display: none;
+        }
+    </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex items-center justify-center p-4">
+<body class="bg-slate-900 text-slate-100 min-h-screen flex items-center justify-center p-4 m-0 overflow-x-hidden">
 
-    <div class="w-full max-w-md bg-slate-800 rounded-xl p-6 space-y-4 shadow-xl">
+    <div id="interfaceBox" class="w-full max-w-md bg-slate-800 rounded-xl p-6 space-y-4 shadow-xl">
         <h1 class="text-xl font-bold text-indigo-400">Create New M3U8 Link</h1>
-        <p class="text-xs text-slate-400">Input an existing stream to generate a new, standalone data stream link.</p>
+        <p class="text-xs text-slate-400">Input a stream to generate a clean, shareable web link that plays instantly in Safari.</p>
         
         <div>
             <input type="text" id="originalUrl" placeholder="https://source.com/live/stream.m3u8" 
                 class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg focus:outline-none focus:border-indigo-500 mb-3 text-sm text-white">
             
             <button onclick="createNewLink()" class="w-full bg-indigo-600 hover:bg-indigo-700 font-medium py-2 rounded-lg transition text-sm cursor-pointer">
-                Generate Raw Stream Link
+                Generate Live Link
             </button>
         </div>
 
         <div id="resultBox" class="hidden p-3 bg-slate-700 rounded-lg space-y-2">
-            <label class="text-xs font-semibold text-emerald-400 block">Your New Raw Link:</label>
+            <label class="text-xs font-semibold text-emerald-400 block">Your New Safari-Ready Link:</label>
             <div class="flex gap-2">
                 <input type="text" id="newUrlResult" readonly class="flex-1 bg-slate-600 text-xs p-2 rounded border border-slate-500 text-gray-200">
                 <button onclick="copyLink()" class="bg-emerald-600 text-xs px-3 py-1 rounded hover:bg-emerald-700 cursor-pointer">
@@ -30,6 +37,10 @@
                 </button>
             </div>
         </div>
+    </div>
+
+    <div id="playerLayer" class="fullscreen-player">
+        <video id="safariVideo" controls playsinline autoplay class="w-full h-full object-contain"></video>
     </div>
 
     <script src="script.js"></script>
