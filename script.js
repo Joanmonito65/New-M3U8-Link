@@ -6,28 +6,24 @@ function createNewLink() {
         return;
     }
 
-    try {
-        // Create a standard M3U8 master playlist file layout using text
-        const manifestContent = `#EXTM3U\n#EXT-X-STREAM-INF:BANDWIDTH=1280000\n${originalUrl}`;
-        
-        // Convert the text manifest directly into a virtual file stream link (Data URI)
-        const encodedLink = `data:application/x-mpegURL;base64,${btoa(manifestContent)}`;
-        
-        // Unhide the result layout and push the new link inside
-        document.getElementById('newUrlResult').value = encodedLink;
-        document.getElementById('resultBox').classList.remove('hidden');
-    } catch(error) {
-        alert("Error generating link. Double-check your URL format.");
-        console.error(error);
-    }
+    // We use a public, reverse-proxy service that strips restrictions and returns raw streaming files.
+    // This creates a standard 'https://' link that Safari can actually read and stream.
+    const proxyBase = "https://corsproxy.io/?url=";
+    
+    // Combine the proxy and your original link, ensuring special characters are safe
+    const newCleanLink = proxyBase + encodeURIComponent(originalUrl);
+
+    // Reveal the box and show the new link
+    document.getElementById('newUrlResult').value = newCleanLink;
+    document.getElementById('resultBox').classList.remove('hidden');
 }
 
 function copyLink() {
     const copyText = document.getElementById('newUrlResult');
     copyText.select();
-    copyText.setSelectionRange(0, 99999); // For mobile devices
+    copyText.setSelectionRange(0, 99999); // Mobile compatibility
 
     navigator.clipboard.writeText(copyText.value)
-        .then(() => alert('Copied your new raw stream link!'))
+        .then(() => alert('Copied your Safari-compatible stream link!'))
         .catch(() => alert('Failed to copy automatically. Please copy it manually.'));
 }
