@@ -3,50 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>M3U8 Link Cloaker & Generator</title>
+    <title>M3U8 Link Generator</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex items-center justify-center p-4">
 
     <div class="w-full max-w-md bg-slate-800 rounded-xl p-6 space-y-4 shadow-xl">
         <h1 class="text-xl font-bold text-indigo-400">Create New M3U8 Link</h1>
-        <p class="text-xs text-slate-400">Input an existing stream to generate a completely new, raw .m3u8 stream link.</p>
+        <p class="text-xs text-slate-400">Input an existing stream to generate a new, standalone data stream link.</p>
         
         <div>
             <input type="text" id="originalUrl" placeholder="https://source.com/live/stream.m3u8" 
-                class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg focus:outline-none focus:border-indigo-500 mb-3 text-sm">
+                class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg focus:outline-none focus:border-indigo-500 mb-3 text-sm text-white">
             
-            <button onclick="createNewLink()" class="w-full bg-indigo-600 hover:bg-indigo-700 font-medium py-2 rounded-lg transition text-sm">
+            <button onclick="createNewLink()" class="w-full bg-indigo-600 hover:bg-indigo-700 font-medium py-2 rounded-lg transition text-sm cursor-pointer">
                 Generate Raw Stream Link
             </button>
         </div>
 
         <div id="resultBox" class="hidden p-3 bg-slate-700 rounded-lg space-y-2">
-            <label class="text-xs font-semibold text-emerald-400 block">Your New Raw .m3u8 Link:</label>
+            <label class="text-xs font-semibold text-emerald-400 block">Your New Raw Link:</label>
             <div class="flex gap-2">
-                <input type="text" id="newUrlResult" readonly class="flex-1 bg-slate-600 text-xs p-2 rounded border border-slate-500">
-                <button onclick="navigator.clipboard.writeText(document.getElementById('newUrlResult').value); alert('Copied!')" 
-                    class="bg-emerald-600 text-xs px-3 py-1 rounded hover:bg-emerald-700">Copy</button>
+                <input type="text" id="newUrlResult" readonly class="flex-1 bg-slate-600 text-xs p-2 rounded border border-slate-500 text-gray-200">
+                <button onclick="copyLink()" class="bg-emerald-600 text-xs px-3 py-1 rounded hover:bg-emerald-700 cursor-pointer">
+                    Copy
+                </button>
             </div>
         </div>
     </div>
 
-    <script>
-        async function createNewLink() {
-            const originalUrl = document.getElementById('originalUrl').value.trim();
-            if(!originalUrl) return alert('Please paste a link');
-
-            const response = await fetch('/api/generate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ originalUrl })
-            });
-
-            const data = await response.json();
-            
-            document.getElementById('newUrlResult').value = data.newLink;
-            document.getElementById('resultBox').classList.remove('hidden');
-        }
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
