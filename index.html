@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M3U8 Stream Player & Link Generator</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col items-center justify-center p-4">
+
+    <div class="w-full max-w-2xl bg-gray-800 rounded-xl shadow-lg p-6 space-y-6">
+        <h1 class="text-2xl font-bold text-center text-indigo-400">M3U8 Link Player Generator</h1>
+        
+        <div class="space-y-3">
+            <label class="block text-sm font-medium text-gray-300">Paste your .m3u8 URL:</label>
+            <div class="flex gap-2">
+                <input type="text" id="m3u8Url" placeholder="https://example.com/stream.m3u8" 
+                    class="flex-1 px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-indigo-500 text-white">
+                <button onclick="generateLink()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-lg transition">
+                    Generate & Play
+                </button>
+            </div>
+        </div>
+
+        <div id="outputContainer" class="hidden p-4 bg-gray-700 rounded-lg space-y-2">
+            <p class="text-sm font-medium text-green-400">Your Shareable Player Link:</p>
+            <div class="flex gap-2">
+                <input type="text" id="generatedLink" readonly class="flex-1 bg-gray-600 text-sm p-2 rounded border border-gray-500 text-gray-200">
+                <button onclick="copyToClipboard()" class="bg-emerald-600 hover:bg-emerald-700 text-xs px-3 py-2 rounded font-medium transition">
+                    Copy
+                </button>
+            </div>
+        </div>
+
+        <div class="relative aspect-video bg-black rounded-lg overflow-hidden shadow-inner">
+            <video id="video" controls class="w-full h-full"></video>
+        </div>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const m3u8Input = document.getElementById('m3u8Url');
+        const outputContainer = document.getElementById('outputContainer');
+        const generatedLinkInput = document.getElementById('generatedLink');
+
+        // Load stream from URL parameters on page load if present
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const streamUrl = urlParams.get('stream');
+            if (streamUrl) {
+                m3u8Input.value = streamUrl;
+                playStream(streamUrl);
+                displayGeneratedLink(streamUrl);
+            }
+        });
+
+        function playStream(url) {
+            if (Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(url);
+                hls.attachMedia(video);
+                hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                    video.play();
+                });
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                // Native support (Safari/iOS)
+                video.src = url;
+                video.addEventListener('loadedmetadata', function() {
+                    video.play();
+                });
+            } else {
+                alert("Your browser does not support HLS playback.");
+            }
+        }
+
+        function generateLink() {
+            const url = m3u8Input.value.trim();
+            if (!url) {
+                alert("Please enter a valid URL");
+                return;
+            }
+            
+            playStream(url);
+            displayGeneratedLink(url);
+        }
+
+        function displayGeneratedLink(url) {
+            // Creates a link pointing back to this website with the stream embedded in the URL parameters
+            const baseUrl = window.location.origin + window.location.pathname;
+            const shareableUrl = `${baseUrl}?stream=${encodeURIComponent(url)}`;
+            
+            generatedLinkInput.value = shareableUrl;
+            outputContainer.classList.remove('hidden');
+        }
+
+        function copyToClipboard() {
+            generatedLinkInput.select();
+            document.execCommand('copy');
+            alert('Link copied to clipboard!');
+        }
+    </script>
+</body>
+</html>
